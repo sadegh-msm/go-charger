@@ -34,4 +34,5 @@ func GetWallet(phoneNumber string) (Wallet, error) {
 	defer database.Close(client, ctx, cancel)
 
 	option := bson.D{{"_id", 0}}
+	
 }
