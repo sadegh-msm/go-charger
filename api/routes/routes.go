@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"challange/api/handlers"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -10,6 +11,9 @@ func Router() *echo.Echo {
 	e := echo.New()
 
 	e.Use(middleware.Logger())
+
+	e.POST("/new", handlers.NewAccount)
+	e.POST("/redeem", handlers.Redeem)
 
 	return e
 }

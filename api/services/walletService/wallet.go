@@ -7,10 +7,10 @@ import (
 )
 
 type Wallet struct {
-	FullName    string `json:"name"`
-	PhoneNumber string `json:"phoneNumber"`
-	Password    string `json:"password"`
-	Balance     int64  `json:"balance"`
+	FullName    string `json:"name" bson:"fullName"`
+	PhoneNumber string `json:"phoneNumber" bson:"phoneNumber"`
+	Password    string `json:"password" bson:"password"`
+	Balance     int64  `json:"balance" bson:"balance"`
 	sync.Mutex
 }
 
@@ -34,5 +34,19 @@ func GetWallet(phoneNumber string) (Wallet, error) {
 	defer database.Close(client, ctx, cancel)
 
 	option := bson.D{{"_id", 0}}
-	
+	filter := bson.D{
+		{"phoneNumber", bson.D{{"$eq", phoneNumber}}},
+	}
+
+	cursor, err := database.Query(client, ctx, "accounts", "members", filter, option)
+	if err != nil {
+		panic(err)
+	}
+
+	var result Wallet
+	if err := cursor.All(ctx, &result); err != nil {
+		panic(err)
+	}
+
+	return result, nil
 }

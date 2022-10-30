@@ -55,10 +55,12 @@ func checkValidation(code OfferCode, userCode string) bool {
 func UseCode(code string, phoneNumber string) error {
 	var offerCode OfferCode
 
+	// TODO: fix the pointer thingy
 	for _, item := range ActiveCodes {
 		result := checkValidation(item, code)
 		if result == true {
 			offerCode = item
+			item.UsedUsers++
 			break
 		}
 		return errors.New("code is not valid")

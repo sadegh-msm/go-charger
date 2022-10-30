@@ -8,10 +8,10 @@ import (
 
 var PhoneNumbers []string
 
-func newAccount(fullName, phoneNumber, password string) (walletService.Wallet, error) {
+func NewAccount(fullName, phoneNumber, password string) error {
 	client, ctx, cancel, err := database.Connect("mongodb://localhost:27017")
 	if err != nil {
-		return walletService.Wallet{}, err
+		return err
 	}
 	defer database.Close(client, ctx, cancel)
 
@@ -32,10 +32,10 @@ func newAccount(fullName, phoneNumber, password string) (walletService.Wallet, e
 	}
 	res, err := database.InsertOne(client, ctx, "accounts", "members", wallet)
 	if err != nil {
-		return walletService.Wallet{}, err
+		return err
 	}
 	log.Println("one record added")
 	log.Println(res)
 
-	return wallet, nil
+	return nil
 }
