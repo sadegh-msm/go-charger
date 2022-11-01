@@ -42,3 +42,7 @@ func NewCode(c echo.Context) error {
 	return c.JSON(http.StatusOK, code)
 
 }
+
+func CodeUsers(c echo.Context) error {
+
+}
