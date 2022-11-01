@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	database2 "challange/api/services/walletService/database"
 	"challange/database"
 	"go.mongodb.org/mongo-driver/bson"
 	"log"
@@ -10,7 +11,6 @@ import (
 type Wallet struct {
 	FullName    string `json:"name"`
 	PhoneNumber string `json:"phoneNumber"`
-	Password    string `json:"password"`
 	Balance     int64  `json:"balance"`
 	sync.Mutex
 }
@@ -25,6 +25,15 @@ func (w *Wallet) IncreaseBalance(amount int64) {
 	w.Lock()
 	w.Balance = w.Balance + amount
 	w.Unlock()
+}
+
+func GetBalance(phoneNumber string) (int64, error) {
+	w, err := database2.GetByNumber(phoneNumber)
+	if err != nil {
+		return 0, err
+	}
+
+	return w.Balance, nil
 }
 
 func GetWallet(phoneNumber string) (Wallet, error) {
@@ -54,7 +63,7 @@ func GetWallet(phoneNumber string) (Wallet, error) {
 
 var PhoneNumbers []string
 
-func NewAcc(fullName, phoneNumber, password string) error {
+func NewAcc(fullName, phoneNumber string) error {
 	client, ctx, cancel, err := database.Connect("mongodb://localhost:27017")
 	if err != nil {
 		return err
@@ -72,7 +81,6 @@ func NewAcc(fullName, phoneNumber, password string) error {
 
 	wallet := Wallet{
 		FullName:    fullName,
-		Password:    password,
 		PhoneNumber: phoneNumber,
 		Balance:     0,
 	}

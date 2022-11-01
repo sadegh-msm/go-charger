@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"challange/api/services/offeringService"
 	"github.com/labstack/echo/v4"
 	"net/http"
 )
@@ -18,7 +17,7 @@ func Redeem(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, "invalid request")
 	}
 
-	err := offeringService.UseCode(req.code, req.phoneNumber)
+	err := UseCode(req.code, req.phoneNumber)
 	if err != nil {
 		return c.JSON(http.StatusNotAcceptable, "invalid code or code has been used too much")
 	}
@@ -38,7 +37,7 @@ func NewCode(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, "invalid request")
 	}
 
-	code := offeringService.NewOfferCode(int64(req.amount), int64(req.userCount))
+	code := NewOfferCode(int64(req.amount), int64(req.userCount))
 
 	return c.JSON(http.StatusOK, code)
 

@@ -29,6 +29,7 @@ func RandomString(n int) string {
 
 func NewOfferCode(amount int64, usersCount int64) OfferCode {
 	code := RandomString(12)
+
 	offerCode := OfferCode{
 		Amount:    amount,
 		Code:      code,

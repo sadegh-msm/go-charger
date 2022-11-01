@@ -57,3 +57,17 @@ func CheckNumbers(number string) error {
 
 	return errors.New("wrong or used number")
 }
+
+func GetByNumber(number string) (Wallet, error) {
+	wallet := Wallet{
+		PhoneNumber: number,
+	}
+
+	db.First(&wallet)
+
+	if wallet.FullName == "" {
+		return Wallet{}, errors.New("wrong number")
+	}
+
+	return wallet, nil
+}
