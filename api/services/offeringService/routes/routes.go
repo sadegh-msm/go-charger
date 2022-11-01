@@ -12,8 +12,8 @@ func Router() *echo.Echo {
 
 	e.Use(middleware.Logger())
 
-	e.POST("/new", handlers.NewAccount)
 	e.POST("/redeem", handlers.Redeem)
+	e.POST("/newCode", handlers.NewCode)
 
 	return e
 }

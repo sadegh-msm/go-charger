@@ -1,9 +1,9 @@
-package offeringService
+package handlers
 
 import (
-	"challange/api/services/walletService"
 	"errors"
 	"math/rand"
+	"sync"
 )
 
 type OfferCode struct {
@@ -12,6 +12,7 @@ type OfferCode struct {
 	UsersCap  int64
 	UsedUsers int64
 	IsValid   bool
+	sync.Mutex
 }
 
 var ActiveCodes []OfferCode
@@ -39,7 +40,7 @@ func NewOfferCode(amount int64, usersCount int64) OfferCode {
 	return offerCode
 }
 
-func checkValidation(code OfferCode, userCode string) bool {
+func checkValidation(code *OfferCode, userCode string) bool {
 	if code.UsedUsers >= code.UsersCap {
 		code.IsValid = false
 		return false
@@ -56,21 +57,32 @@ func UseCode(code string, phoneNumber string) error {
 	var offerCode OfferCode
 
 	// TODO: fix the pointer thingy
-	for _, item := range ActiveCodes {
-		result := checkValidation(item, code)
-		if result == true {
-			offerCode = item
-			item.UsedUsers++
-			break
+	//for _, item := range ActiveCodes {
+	//	result := checkValidation(&item, code)
+	//	if result == true {
+	//		offerCode = item
+	//		item.UsedUsers++
+	//		break
+	//	}
+	//	return errors.New("code is not valid")
+	//}
+
+	for i := 0; i < len(ActiveCodes); i++ {
+		result := checkValidation(&ActiveCodes[i], code)
+		if result {
+			offerCode = ActiveCodes[i]
+			ActiveCodes[i].Lock()
+			ActiveCodes[i].UsedUsers++
+			ActiveCodes[i].Unlock()
+
+			wallet, err := GetWallet(phoneNumber)
+			if err != nil {
+				return errors.New("cant find the wallet")
+			}
+			wallet.IncreaseBalance(offerCode.Amount)
+
+			return nil
 		}
-		return errors.New("code is not valid")
 	}
-
-	wallet, err := walletService.GetWallet(phoneNumber)
-	if err != nil {
-		return errors.New("cant find the wallet")
-	}
-	wallet.IncreaseBalance(offerCode.Amount)
-
-	return nil
+	return errors.New("code is not valid")
 }

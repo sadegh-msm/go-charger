@@ -1,16 +1,17 @@
-package walletService
+package handlers
 
 import (
 	"challange/database"
 	"go.mongodb.org/mongo-driver/bson"
+	"log"
 	"sync"
 )
 
 type Wallet struct {
-	FullName    string `json:"name" bson:"fullName"`
-	PhoneNumber string `json:"phoneNumber" bson:"phoneNumber"`
-	Password    string `json:"password" bson:"password"`
-	Balance     int64  `json:"balance" bson:"balance"`
+	FullName    string `json:"name"`
+	PhoneNumber string `json:"phoneNumber"`
+	Password    string `json:"password"`
+	Balance     int64  `json:"balance"`
 	sync.Mutex
 }
 
@@ -49,4 +50,38 @@ func GetWallet(phoneNumber string) (Wallet, error) {
 	}
 
 	return result, nil
+}
+
+var PhoneNumbers []string
+
+func NewAcc(fullName, phoneNumber, password string) error {
+	client, ctx, cancel, err := database.Connect("mongodb://localhost:27017")
+	if err != nil {
+		return err
+	}
+	defer database.Close(client, ctx, cancel)
+
+	for _, number := range PhoneNumbers {
+		if number == phoneNumber {
+			break
+		} else {
+			PhoneNumbers = append(PhoneNumbers, phoneNumber)
+			break
+		}
+	}
+
+	wallet := Wallet{
+		FullName:    fullName,
+		Password:    password,
+		PhoneNumber: phoneNumber,
+		Balance:     0,
+	}
+	res, err := database.InsertOne(client, ctx, "accounts", "members", wallet)
+	if err != nil {
+		return err
+	}
+	log.Println("one record added")
+	log.Println(res)
+
+	return nil
 }

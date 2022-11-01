@@ -1,7 +1,7 @@
-package main
+package walletService
 
 import (
-	"challange/api/routes"
+	"challange/api/services/walletService/routes"
 	"log"
 )
 
