@@ -13,8 +13,8 @@ func Router() *echo.Echo {
 	e.Use(middleware.Logger())
 
 	e.POST("/newacc", handlers.NewAccount)
-	e.POST("/increase", handlers.Charge)
-	e.POST("/decrease", handlers.Use)
+	e.POST("/charge", handlers.Charge)
+	e.POST("/use", handlers.Use)
 	e.GET("/balance", handlers.Balance)
 
 	return e
