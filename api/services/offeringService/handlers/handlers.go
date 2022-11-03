@@ -1,9 +1,9 @@
 package handlers
 
 import (
-	"challange/api/services/offeringService/database"
 	"github.com/labstack/echo/v4"
 	"net/http"
+	"offering-service/database"
 )
 
 func Redeem(c echo.Context) error {
@@ -48,7 +48,10 @@ func NewCode(c echo.Context) error {
 }
 
 func CodeUsers(c echo.Context) error {
-	res := database.GetAll()
+	res, err := database.GetAll()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, "cant find all users right now")
+	}
 
 	return c.JSON(http.StatusOK, res)
 }

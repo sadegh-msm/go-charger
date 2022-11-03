@@ -1,9 +1,9 @@
 package handlers
 
 import (
-	"challange/api/services/walletService/database"
 	"log"
 	"sync"
+	"wallet-service/database"
 )
 
 type Wallet struct {

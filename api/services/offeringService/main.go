@@ -1,8 +1,8 @@
 package main
 
 import (
-	"challange/api/services/offeringService/routes"
 	"log"
+	"offering-service/routes"
 )
 
 type Server struct {

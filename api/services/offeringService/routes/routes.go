@@ -1,9 +1,9 @@
 package routes
 
 import (
-	"challange/api/services/offeringService/handlers"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"offering-service/handlers"
 )
 
 // Router creating new router and add middlewares and routes and return echo object
