@@ -5,6 +5,7 @@ import (
 	"net/http"
 )
 
+// NewAccount creates a new account by name and phone number and set the balance to 0
 func NewAccount(c echo.Context) error {
 	type request struct {
 		fullName    string
@@ -25,6 +26,7 @@ func NewAccount(c echo.Context) error {
 	return c.JSON(http.StatusCreated, "account created")
 }
 
+// Balance will return the balance of the wallet by phone number
 func Balance(c echo.Context) error {
 	type request struct {
 		phoneNumber string
@@ -44,7 +46,8 @@ func Balance(c echo.Context) error {
 	return c.JSON(http.StatusOK, balance)
 }
 
-func Increment(c echo.Context) error {
+// Charge will charge the wallet by giving amount and phone number
+func Charge(c echo.Context) error {
 	type request struct {
 		amount      int64
 		phoneNumber string
@@ -66,7 +69,8 @@ func Increment(c echo.Context) error {
 	return c.JSON(http.StatusOK, "your wallet balance has been updated")
 }
 
-func Decrement(c echo.Context) error {
+// Use will use the wallet for given phone number and amount
+func Use(c echo.Context) error {
 	type request struct {
 		amount      int64
 		phoneNumber string

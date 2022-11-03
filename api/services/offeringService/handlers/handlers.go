@@ -6,6 +6,8 @@ import (
 	"offering-service/database"
 )
 
+// Redeem handler for redeem API and gets code and phone number and check if the number and code is valid or not
+// if data is valid will use code and call Increment Api from other service
 func Redeem(c echo.Context) error {
 	type request struct {
 		phoneNumber string
@@ -27,9 +29,11 @@ func Redeem(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusNotAcceptable, "you cant use code")
 	}
+
 	return c.JSON(http.StatusOK, "your wallet has been charged")
 }
 
+// NewCode generates a new code by given stats and add it to ActiveCodes
 func NewCode(c echo.Context) error {
 	type request struct {
 		amount    int
@@ -47,6 +51,7 @@ func NewCode(c echo.Context) error {
 	return c.JSON(http.StatusOK, code)
 }
 
+// CodeUsers will return all the users that use code by their phone number
 func CodeUsers(c echo.Context) error {
 	res, err := database.GetAll()
 	if err != nil {

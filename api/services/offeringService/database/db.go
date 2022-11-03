@@ -19,6 +19,7 @@ func newPool() *redis.Pool {
 	}
 }
 
+// creating a new poll for redis connections
 var pool = newPool()
 
 func Get(key interface{}) (interface{}, error) {
@@ -45,6 +46,7 @@ func Set(key, value interface{}) error {
 	return nil
 }
 
+// GetAll gets all keys by regex command
 func GetAll() (interface{}, error) {
 	client := pool.Get()
 	defer client.Close()

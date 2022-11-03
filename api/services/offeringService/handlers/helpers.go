@@ -21,7 +21,8 @@ type OfferCode struct {
 
 var ActiveCodes []OfferCode
 
-func RandomString(n int) string {
+// will generate a random string for offer code
+func randomString(n int) string {
 	var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
 
 	s := make([]rune, n)
@@ -31,8 +32,9 @@ func RandomString(n int) string {
 	return string(s)
 }
 
+// NewOfferCode is a constructor for a new offer code
 func NewOfferCode(amount int64, usersCount int64) OfferCode {
-	code := RandomString(12)
+	code := randomString(12)
 
 	offerCode := OfferCode{
 		Amount:    amount,
@@ -46,6 +48,7 @@ func NewOfferCode(amount int64, usersCount int64) OfferCode {
 	return offerCode
 }
 
+// check of the code is valid and doesn't reach its limit
 func checkValidation(code *OfferCode) bool {
 	if code.IsValid {
 		if code.UsedUsers <= code.UsersCap {
@@ -62,6 +65,7 @@ func checkValidation(code *OfferCode) bool {
 	return false
 }
 
+// UseCode will check if the code is valid and if it is, it calls an API from wallet service and charge the wallet
 func UseCode(code string, phoneNumber string) error {
 	for i := 0; i < len(ActiveCodes); i++ {
 		if ActiveCodes[i].Code == code {
@@ -73,7 +77,7 @@ func UseCode(code string, phoneNumber string) error {
 				})
 				responseBody := bytes.NewBuffer(postBody)
 
-				resp, err := http.Post("http://localhost:8080/increment", "application/json", responseBody)
+				resp, err := http.Post("http://localhost:8080/Charge", "application/json", responseBody)
 				if err != nil {
 					log.Fatalf("An Error Occured %v", err)
 				}

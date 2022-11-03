@@ -10,7 +10,7 @@ type Server struct {
 	Host string
 }
 
-// entry point of program
+// entry point of service
 func main() {
 	e := routes.Router()
 

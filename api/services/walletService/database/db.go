@@ -9,6 +9,7 @@ import (
 
 var db *gorm.DB
 
+// Wallet creating schema for orm
 type Wallet struct {
 	gorm.Model
 	FullName    string
@@ -16,6 +17,7 @@ type Wallet struct {
 	Balance     int64
 }
 
+// InitialMigration initial the database (SQLite)
 func InitialMigration() {
 	db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
 	if err != nil {
@@ -26,6 +28,7 @@ func InitialMigration() {
 	db.AutoMigrate(&Wallet{})
 }
 
+// AddData adds new data into database
 func AddData(name, number string, balance int64) error {
 	wallet := Wallet{
 		FullName:    name,
@@ -42,6 +45,7 @@ func AddData(name, number string, balance int64) error {
 	return nil
 }
 
+// CheckNumbers will checks for phone numbers so the phone number will be unique
 func CheckNumbers(number string) error {
 	wallet := Wallet{
 		PhoneNumber: number,
@@ -56,6 +60,7 @@ func CheckNumbers(number string) error {
 	return errors.New("wrong or used number")
 }
 
+// GetByNumber will return the wallet by given number
 func GetByNumber(number string) (Wallet, error) {
 	wallet := Wallet{
 		PhoneNumber: number,
