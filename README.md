@@ -31,6 +31,7 @@ there are 3 `end points` that you can use to work with this service :
 ```go
 func NewRouter(e *echo.Echo) *echo.Echo {
     e.POST("/newcode", handlers.NewCode)
+	// this API needs to call charge API from wallet service
     e.POST("/redeem", handlers.Redeem)
     e.GET("/codeusers", handlers.CodeUsers)
 
