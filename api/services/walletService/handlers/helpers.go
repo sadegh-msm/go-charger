@@ -1,9 +1,7 @@
 package handlers
 
 import (
-	database2 "challange/api/services/walletService/database"
-	"challange/database"
-	"go.mongodb.org/mongo-driver/bson"
+	"challange/api/services/walletService/database"
 	"log"
 	"sync"
 )
@@ -28,7 +26,7 @@ func (w *Wallet) IncreaseBalance(amount int64) {
 }
 
 func GetBalance(phoneNumber string) (int64, error) {
-	w, err := database2.GetByNumber(phoneNumber)
+	w, err := database.GetByNumber(phoneNumber)
 	if err != nil {
 		return 0, err
 	}
@@ -37,59 +35,36 @@ func GetBalance(phoneNumber string) (int64, error) {
 }
 
 func GetWallet(phoneNumber string) (Wallet, error) {
-	client, ctx, cancel, err := database.Connect("mongodb://localhost:27017")
+	database.InitialMigration()
+
+	wallet, err := database.GetByNumber(phoneNumber)
 	if err != nil {
 		return Wallet{}, err
 	}
-	defer database.Close(client, ctx, cancel)
 
-	option := bson.D{{"_id", 0}}
-	filter := bson.D{
-		{"phoneNumber", bson.D{{"$eq", phoneNumber}}},
+	w := Wallet{
+		FullName:    wallet.FullName,
+		PhoneNumber: wallet.PhoneNumber,
+		Balance:     wallet.Balance,
 	}
 
-	cursor, err := database.Query(client, ctx, "accounts", "members", filter, option)
-	if err != nil {
-		panic(err)
-	}
-
-	var result Wallet
-	if err := cursor.All(ctx, &result); err != nil {
-		panic(err)
-	}
-
-	return result, nil
+	return w, nil
 }
 
-var PhoneNumbers []string
-
 func NewAcc(fullName, phoneNumber string) error {
-	client, ctx, cancel, err := database.Connect("mongodb://localhost:27017")
+	database.InitialMigration()
+
+	err := database.CheckNumbers(phoneNumber)
 	if err != nil {
 		return err
 	}
-	defer database.Close(client, ctx, cancel)
 
-	for _, number := range PhoneNumbers {
-		if number == phoneNumber {
-			break
-		} else {
-			PhoneNumbers = append(PhoneNumbers, phoneNumber)
-			break
-		}
-	}
-
-	wallet := Wallet{
-		FullName:    fullName,
-		PhoneNumber: phoneNumber,
-		Balance:     0,
-	}
-	res, err := database.InsertOne(client, ctx, "accounts", "members", wallet)
+	err = database.AddData(fullName, phoneNumber, 0)
 	if err != nil {
 		return err
 	}
+
 	log.Println("one record added")
-	log.Println(res)
 
 	return nil
 }

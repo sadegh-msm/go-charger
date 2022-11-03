@@ -1,4 +1,4 @@
-package offeringService
+package main
 
 import (
 	"challange/api/services/offeringService/routes"

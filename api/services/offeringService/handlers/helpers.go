@@ -1,8 +1,12 @@
 package handlers
 
 import (
-	"errors"
+	"bytes"
+	"encoding/json"
+	"log"
 	"math/rand"
+	"net/http"
+	"strconv"
 	"sync"
 )
 
@@ -37,53 +41,46 @@ func NewOfferCode(amount int64, usersCount int64) OfferCode {
 		UsedUsers: 0,
 		IsValid:   true,
 	}
+	ActiveCodes = append(ActiveCodes, offerCode)
 
 	return offerCode
 }
 
-func checkValidation(code *OfferCode, userCode string) bool {
-	if code.UsedUsers >= code.UsersCap {
-		code.IsValid = false
-		return false
-	}
+func checkValidation(code *OfferCode) bool {
+	if code.IsValid {
+		if code.UsedUsers <= code.UsersCap {
+			code.Lock()
+			code.UsedUsers++
+			code.Unlock()
 
-	if code.Code != userCode || !code.IsValid {
-		return false
+			return true
+		} else {
+			code.IsValid = false
+			return false
+		}
 	}
-
-	return true
+	return false
 }
 
 func UseCode(code string, phoneNumber string) error {
-	var offerCode OfferCode
-
-	// TODO: fix the pointer thingy
-	//for _, item := range ActiveCodes {
-	//	result := checkValidation(&item, code)
-	//	if result == true {
-	//		offerCode = item
-	//		item.UsedUsers++
-	//		break
-	//	}
-	//	return errors.New("code is not valid")
-	//}
-
 	for i := 0; i < len(ActiveCodes); i++ {
-		result := checkValidation(&ActiveCodes[i], code)
-		if result {
-			offerCode = ActiveCodes[i]
-			ActiveCodes[i].Lock()
-			ActiveCodes[i].UsedUsers++
-			ActiveCodes[i].Unlock()
+		if ActiveCodes[i].Code == code {
+			res := checkValidation(&ActiveCodes[i])
+			if res {
+				postBody, _ := json.Marshal(map[string]string{
+					"amount":      strconv.FormatInt(ActiveCodes[i].Amount, 10),
+					"phoneNumber": phoneNumber,
+				})
+				responseBody := bytes.NewBuffer(postBody)
 
-			wallet, err := GetWallet(phoneNumber)
-			if err != nil {
-				return errors.New("cant find the wallet")
+				resp, err := http.Post("http://localhost:8080/increment", "application/json", responseBody)
+				if err != nil {
+					log.Fatalf("An Error Occured %v", err)
+				}
+				defer resp.Body.Close()
 			}
-			wallet.IncreaseBalance(offerCode.Amount)
-
-			return nil
 		}
 	}
-	return errors.New("code is not valid")
+
+	return nil
 }

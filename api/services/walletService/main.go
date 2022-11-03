@@ -1,4 +1,4 @@
-package walletService
+package main
 
 import (
 	"challange/api/services/walletService/routes"

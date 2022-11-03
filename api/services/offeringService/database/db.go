@@ -20,6 +20,7 @@ func newPool() *redis.Pool {
 }
 
 var pool = newPool()
+var keys []interface{}
 
 func Get(key interface{}) (interface{}, error) {
 	client := pool.Get()
@@ -38,6 +39,7 @@ func Set(key, value interface{}) error {
 	defer client.Close()
 
 	value, err := client.Do("SET", key, value)
+	keys = append(keys, key)
 	if err != nil {
 		return err
 	}
@@ -45,14 +47,14 @@ func Set(key, value interface{}) error {
 	return nil
 }
 
-func GetAll(keys []interface{}) (values []interface{}, err error) {
+func GetAll() (res []string) {
 	client := pool.Get()
 	defer client.Close()
 
 	for _, key := range keys {
 		value, _ := Get(key)
-		values = append(values, value)
+		res = append(res, value.(string)+" : "+key.(string))
 	}
 
-	return values, err
+	return
 }

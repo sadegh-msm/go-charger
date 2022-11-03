@@ -13,7 +13,6 @@ type Wallet struct {
 	gorm.Model
 	FullName    string
 	PhoneNumber string
-	Password    string
 	Balance     int64
 }
 
@@ -27,11 +26,10 @@ func InitialMigration() {
 	db.AutoMigrate(&Wallet{})
 }
 
-func AddData(name, number, pass string, balance int64) error {
+func AddData(name, number string, balance int64) error {
 	wallet := Wallet{
 		FullName:    name,
 		PhoneNumber: number,
-		Password:    pass,
 		Balance:     balance,
 	}
 

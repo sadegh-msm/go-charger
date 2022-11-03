@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"challange/api/services/offeringService/database"
 	"github.com/labstack/echo/v4"
 	"net/http"
 )
@@ -22,6 +23,10 @@ func Redeem(c echo.Context) error {
 		return c.JSON(http.StatusNotAcceptable, "invalid code or code has been used too much")
 	}
 
+	err = database.Set(req.phoneNumber, req.code)
+	if err != nil {
+		return c.JSON(http.StatusNotAcceptable, "you cant use code")
+	}
 	return c.JSON(http.StatusOK, "your wallet has been charged")
 }
 
@@ -40,9 +45,10 @@ func NewCode(c echo.Context) error {
 	code := NewOfferCode(int64(req.amount), int64(req.userCount))
 
 	return c.JSON(http.StatusOK, code)
-
 }
 
 func CodeUsers(c echo.Context) error {
+	res := database.GetAll()
 
+	return c.JSON(http.StatusOK, res)
 }
