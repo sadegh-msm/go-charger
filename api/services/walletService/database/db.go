@@ -1,76 +1,51 @@
 package database
 
 import (
+	"database/sql"
 	"errors"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
 	"log"
 )
 
-var db *gorm.DB
-
-// Wallet creating schema for orm
-type Wallet struct {
-	gorm.Model
-	FullName    string
-	PhoneNumber string
-	Balance     int64
-}
-
-// InitialMigration initial the database (SQLite)
-func InitialMigration() {
-	db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
+func AddData(db *sql.DB, FullName string, PhoneNumber string, Balance int) error {
+	records := `INSERT INTO users(FullName, PhoneNumber, Balance) VALUES (?, ?, ?)`
+	query, err := db.Prepare(records)
 	if err != nil {
-		panic("failed to connect database")
+		return err
 	}
 
-	// Migrate the schema
-	db.AutoMigrate(&Wallet{})
-}
-
-// AddData adds new data into database
-func AddData(name, number string, balance int64) error {
-	wallet := Wallet{
-		FullName:    name,
-		PhoneNumber: number,
-		Balance:     balance,
-	}
-
-	result := db.Create(&wallet)
-	if result.Error != nil {
-		log.Println("unable to add wallet to database")
-		return result.Error
+	_, err = query.Exec(FullName, PhoneNumber, Balance)
+	if err != nil {
+		return err
 	}
 
 	return nil
 }
 
-// CheckNumbers will checks for phone numbers so the phone number will be unique
-func CheckNumbers(number string) error {
-	wallet := Wallet{
-		PhoneNumber: number,
+func GetALlNumbers(db *sql.DB) (res []string) {
+	record, err := db.Query("SELECT PhoneNumber FROM users")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer record.Close()
+
+	for record.Next() {
+		var PhoneNumber string
+		record.Scan(&PhoneNumber)
+
+		res = append(res, PhoneNumber)
 	}
 
-	db.First(&wallet)
-
-	if wallet.FullName == "" {
-		return nil
-	}
-
-	return errors.New("wrong or used number")
+	return
 }
 
-// GetByNumber will return the wallet by given number
-func GetByNumber(number string) (Wallet, error) {
-	wallet := Wallet{
-		PhoneNumber: number,
+func CheckNumbers(db *sql.DB, number string) error {
+	res := GetALlNumbers(db)
+
+	for _, num := range res {
+		if num == number {
+			return errors.New("number is already used")
+		}
 	}
 
-	db.First(&wallet)
-
-	if wallet.FullName == "" {
-		return Wallet{}, errors.New("wrong number")
-	}
-
-	return wallet, nil
+	return nil
 }
