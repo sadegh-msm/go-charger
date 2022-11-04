@@ -2,23 +2,27 @@ package handlers
 
 import (
 	"github.com/labstack/echo/v4"
+	"log"
 	"net/http"
 )
 
 // NewAccount creates a new account by name and phone number and set the balance to 0
 func NewAccount(c echo.Context) error {
 	type request struct {
-		fullName    string
-		phoneNumber string
+		FullName    string `json:"fullName"`
+		PhoneNumber string `json:"phoneNumber"`
 	}
 
-	req := &request{}
-	bindErr := c.Bind(req)
+	req := request{}
+	bindErr := c.Bind(&req)
 	if bindErr != nil {
 		return c.JSON(http.StatusBadRequest, "invalid request")
 	}
 
-	err := NewAcc(req.fullName, req.phoneNumber)
+	log.Println(req.FullName, req.PhoneNumber)
+	log.Println("fuck")
+
+	err := NewAcc(req.FullName, req.PhoneNumber)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, "unable to create account")
 	}
@@ -29,16 +33,16 @@ func NewAccount(c echo.Context) error {
 // Balance will return the balance of the wallet by phone number
 func Balance(c echo.Context) error {
 	type request struct {
-		phoneNumber string
+		PhoneNumber string `json:"phoneNumber"`
 	}
 
-	req := &request{}
-	bindErr := c.Bind(req)
+	req := request{}
+	bindErr := c.Bind(&req)
 	if bindErr != nil {
 		return c.JSON(http.StatusBadRequest, "invalid request")
 	}
 
-	balance, err := GetBalance(req.phoneNumber)
+	balance, err := GetBalance(req.PhoneNumber)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, "invalid phone number")
 	}
@@ -49,22 +53,22 @@ func Balance(c echo.Context) error {
 // Charge will charge the wallet by giving amount and phone number
 func Charge(c echo.Context) error {
 	type request struct {
-		amount      int64
-		phoneNumber string
+		Amount      int64  `json:"amount"`
+		PhoneNumber string `json:"phoneNumber"`
 	}
 
-	req := &request{}
-	bindErr := c.Bind(req)
+	req := request{}
+	bindErr := c.Bind(&req)
 	if bindErr != nil {
 		return c.JSON(http.StatusBadRequest, "invalid request")
 	}
 
-	wallet, err := GetWallet(req.phoneNumber)
+	wallet, err := GetWallet(req.PhoneNumber)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, "invalid phone number")
 	}
 
-	wallet.IncreaseBalance(req.amount)
+	wallet.IncreaseBalance(req.Amount)
 
 	return c.JSON(http.StatusOK, "your wallet balance has been updated")
 }
@@ -72,23 +76,22 @@ func Charge(c echo.Context) error {
 // Use will use the wallet for given phone number and amount
 func Use(c echo.Context) error {
 	type request struct {
-		amount      int64
-		phoneNumber string
+		Amount      int64  `json:"amount"`
+		PhoneNumber string `json:"phoneNumber"`
 	}
 
-	req := &request{}
-	bindErr := c.Bind(req)
+	req := request{}
+	bindErr := c.Bind(&req)
 	if bindErr != nil {
 		return c.JSON(http.StatusBadRequest, "invalid request")
 	}
 
-	wallet, err := GetWallet(req.phoneNumber)
+	wallet, err := GetWallet(req.PhoneNumber)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, "invalid phone number")
 	}
 
-	wallet.DecreaseBalance(req.amount)
+	wallet.DecreaseBalance(req.Amount)
 
 	return c.JSON(http.StatusOK, "your wallet balance has been updated")
-
 }

@@ -14,8 +14,8 @@ func Redeem(c echo.Context) error {
 		code        string
 	}
 
-	req := &request{}
-	bindErr := c.Bind(req)
+	req := request{}
+	bindErr := c.Bind(&req)
 	if bindErr != nil {
 		return c.JSON(http.StatusBadRequest, "invalid request")
 	}
@@ -40,8 +40,8 @@ func NewCode(c echo.Context) error {
 		userCount int
 	}
 
-	req := &request{}
-	bindErr := c.Bind(req)
+	req := request{}
+	bindErr := c.Bind(&req)
 	if bindErr != nil {
 		return c.JSON(http.StatusBadRequest, "invalid request")
 	}

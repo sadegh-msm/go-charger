@@ -15,7 +15,7 @@ func Router() *echo.Echo {
 	e.POST("/newacc", handlers.NewAccount)
 	e.POST("/charge", handlers.Charge)
 	e.POST("/use", handlers.Use)
-	e.GET("/balance", handlers.Balance)
+	e.POST("/balance", handlers.Balance)
 
 	return e
 }
