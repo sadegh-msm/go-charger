@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"github.com/labstack/echo/v4"
+	"log"
 	"net/http"
 )
 
@@ -12,11 +13,13 @@ func NewAccount(c echo.Context) error {
 		phoneNumber string
 	}
 
-	req := &request{}
-	bindErr := c.Bind(req)
+	req := request{}
+	bindErr := c.Bind(&req)
 	if bindErr != nil {
 		return c.JSON(http.StatusBadRequest, "invalid request")
 	}
+
+	log.Println(req.fullName, req.phoneNumber)
 
 	err := NewAcc(req.fullName, req.phoneNumber)
 	if err != nil {
@@ -32,8 +35,8 @@ func Balance(c echo.Context) error {
 		phoneNumber string
 	}
 
-	req := &request{}
-	bindErr := c.Bind(req)
+	req := request{}
+	bindErr := c.Bind(&req)
 	if bindErr != nil {
 		return c.JSON(http.StatusBadRequest, "invalid request")
 	}
@@ -53,8 +56,8 @@ func Charge(c echo.Context) error {
 		phoneNumber string
 	}
 
-	req := &request{}
-	bindErr := c.Bind(req)
+	req := request{}
+	bindErr := c.Bind(&req)
 	if bindErr != nil {
 		return c.JSON(http.StatusBadRequest, "invalid request")
 	}
@@ -76,8 +79,8 @@ func Use(c echo.Context) error {
 		phoneNumber string
 	}
 
-	req := &request{}
-	bindErr := c.Bind(req)
+	req := request{}
+	bindErr := c.Bind(&req)
 	if bindErr != nil {
 		return c.JSON(http.StatusBadRequest, "invalid request")
 	}
