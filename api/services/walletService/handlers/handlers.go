@@ -16,14 +16,13 @@ func NewAccount(c echo.Context) error {
 	req := request{}
 	bindErr := c.Bind(&req)
 	if bindErr != nil {
+		log.Println(bindErr)
 		return c.JSON(http.StatusBadRequest, "invalid request")
 	}
 
-	log.Println(req.FullName, req.PhoneNumber)
-	log.Println("fuck")
-
 	err := NewAcc(req.FullName, req.PhoneNumber)
 	if err != nil {
+		log.Println(err)
 		return c.JSON(http.StatusBadRequest, "unable to create account")
 	}
 

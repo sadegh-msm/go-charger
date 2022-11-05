@@ -2,6 +2,7 @@ package database
 
 import (
 	"errors"
+	"fmt"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"log"
@@ -19,7 +20,9 @@ type Wallet struct {
 
 // InitialMigration initial the database (SQLite)
 func InitialMigration() {
-	db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
+	var err error
+
+	db, err = gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database")
 	}
@@ -51,7 +54,8 @@ func CheckNumbers(number string) error {
 		PhoneNumber: number,
 	}
 
-	db.First(&wallet)
+	res := db.First(&wallet)
+	fmt.Println(*res)
 
 	if wallet.FullName == "" {
 		return nil
