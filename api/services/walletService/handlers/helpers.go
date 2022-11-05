@@ -17,12 +17,16 @@ func (w *Wallet) DecreaseBalance(amount int64) {
 	w.Lock()
 	w.Balance = w.Balance - amount
 	w.Unlock()
+
+	database.UpdateWallet(w.PhoneNumber, amount)
 }
 
 func (w *Wallet) IncreaseBalance(amount int64) {
 	w.Lock()
 	w.Balance = w.Balance + amount
 	w.Unlock()
+
+	database.UpdateWallet(w.PhoneNumber, w.Balance)
 }
 
 // GetBalance will return the balance of a wallet by its phone number
@@ -37,8 +41,6 @@ func GetBalance(phoneNumber string) (int64, error) {
 
 // GetWallet will return a wallet by its phone number
 func GetWallet(phoneNumber string) (Wallet, error) {
-	database.InitialMigration()
-
 	wallet, err := database.GetByNumber(phoneNumber)
 	if err != nil {
 		return Wallet{}, err
@@ -54,8 +56,6 @@ func GetWallet(phoneNumber string) (Wallet, error) {
 }
 
 func NewAcc(fullName, phoneNumber string) error {
-	database.InitialMigration()
-
 	err := database.CheckNumbers(phoneNumber)
 	if err != nil {
 		return err

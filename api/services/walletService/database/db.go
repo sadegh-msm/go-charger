@@ -2,7 +2,6 @@ package database
 
 import (
 	"errors"
-	"fmt"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"log"
@@ -33,6 +32,8 @@ func InitialMigration() {
 
 // AddData adds new data into database
 func AddData(name, number string, balance int64) error {
+	InitialMigration()
+
 	wallet := Wallet{
 		FullName:    name,
 		PhoneNumber: number,
@@ -50,12 +51,10 @@ func AddData(name, number string, balance int64) error {
 
 // CheckNumbers will checks for phone numbers so the phone number will be unique
 func CheckNumbers(number string) error {
-	wallet := Wallet{
-		PhoneNumber: number,
-	}
+	InitialMigration()
 
-	res := db.First(&wallet)
-	fmt.Println(*res)
+	var wallet Wallet
+	db.Find(&wallet, "phone_number = ?", number)
 
 	if wallet.FullName == "" {
 		return nil
@@ -66,6 +65,8 @@ func CheckNumbers(number string) error {
 
 // GetByNumber will return the wallet by given number
 func GetByNumber(number string) (Wallet, error) {
+	InitialMigration()
+
 	wallet := Wallet{
 		PhoneNumber: number,
 	}
@@ -77,4 +78,18 @@ func GetByNumber(number string) (Wallet, error) {
 	}
 
 	return wallet, nil
+}
+
+func UpdateWallet(phoneNumber string, balance int64) {
+	InitialMigration()
+
+	wallet := Wallet{
+		PhoneNumber: phoneNumber,
+	}
+
+	db.First(&wallet)
+
+	wallet.Balance = balance
+
+	db.Save(&wallet)
 }

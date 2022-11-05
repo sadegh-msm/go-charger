@@ -3,10 +3,10 @@ package handlers
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"log"
 	"math/rand"
 	"net/http"
-	"strconv"
 	"sync"
 )
 
@@ -68,23 +68,31 @@ func checkValidation(code *OfferCode) bool {
 // UseCode will check if the code is valid and if it is, it calls an API from wallet service and charge the wallet
 func UseCode(code string, phoneNumber string) error {
 	for i := 0; i < len(ActiveCodes); i++ {
+		//ActiveCodes[i].Lock()
+		//defer ActiveCodes[i].Unlock()
+
 		if ActiveCodes[i].Code == code {
 			res := checkValidation(&ActiveCodes[i])
+			log.Println(ActiveCodes[i])
+
 			if res {
-				postBody, _ := json.Marshal(map[string]string{
-					"amount":      strconv.FormatInt(ActiveCodes[i].Amount, 10),
+				postBody, _ := json.Marshal(map[string]interface{}{
+					"amount":      ActiveCodes[i].Amount,
 					"phoneNumber": phoneNumber,
 				})
 				responseBody := bytes.NewBuffer(postBody)
 
-				resp, err := http.Post("http://localhost:8080/Charge", "application/json", responseBody)
+				resp, err := http.Post("http://localhost:8080/charge", "application/json", responseBody)
 				if err != nil {
 					log.Fatalf("An Error Occured %v", err)
+					return err
 				}
 				defer resp.Body.Close()
+
+				return nil
 			}
 		}
 	}
 
-	return nil
+	return errors.New("enable to use code")
 }

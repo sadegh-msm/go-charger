@@ -10,8 +10,8 @@ import (
 // if data is valid will use code and call Increment Api from other service
 func Redeem(c echo.Context) error {
 	type request struct {
-		phoneNumber string
-		code        string
+		PhoneNumber string `json:"phoneNumber"`
+		Code        string `json:"code"`
 	}
 
 	req := request{}
@@ -20,12 +20,12 @@ func Redeem(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, "invalid request")
 	}
 
-	err := UseCode(req.code, req.phoneNumber)
+	err := UseCode(req.Code, req.PhoneNumber)
 	if err != nil {
 		return c.JSON(http.StatusNotAcceptable, "invalid code or code has been used too much")
 	}
 
-	err = database.Set(req.phoneNumber, req.code)
+	err = database.Set(req.PhoneNumber, req.Code)
 	if err != nil {
 		return c.JSON(http.StatusNotAcceptable, "you cant use code")
 	}
@@ -36,8 +36,8 @@ func Redeem(c echo.Context) error {
 // NewCode generates a new code by given stats and add it to ActiveCodes
 func NewCode(c echo.Context) error {
 	type request struct {
-		amount    int
-		userCount int
+		Amount    int `json:"amount"`
+		UserCount int `json:"userCount"`
 	}
 
 	req := request{}
@@ -46,17 +46,28 @@ func NewCode(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, "invalid request")
 	}
 
-	code := NewOfferCode(int64(req.amount), int64(req.userCount))
+	code := NewOfferCode(int64(req.Amount), int64(req.UserCount))
 
 	return c.JSON(http.StatusOK, code)
 }
 
 // CodeUsers will return all the users that use code by their phone number
 func CodeUsers(c echo.Context) error {
-	res, err := database.GetAll()
+	var allUsers []string
+
+	res, err := database.GetAll("*")
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, "cant find all users right now")
 	}
 
-	return c.JSON(http.StatusOK, res)
+	for _, item := range res {
+		result, err := database.Get(item)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, "cant find all users right now")
+		}
+
+		allUsers = append(allUsers, item+" : "+string(result.([]uint8)))
+	}
+
+	return c.JSON(http.StatusOK, allUsers)
 }
