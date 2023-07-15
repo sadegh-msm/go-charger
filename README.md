@@ -1,6 +1,6 @@
-# arvan cloud challenge
+# Charge redeemer 
 
-> arvan cloud interviewing challenge 
+> Code generator and redeemer
 
 ## introduction
 this project includes 2 services `wallet service` and `offering service`.
